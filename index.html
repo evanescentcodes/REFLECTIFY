@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reflectify - Self Insight Quiz</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f3e5f5, #e1f5fe);
+      margin: 0;
+      padding: 0;
+      color: #333;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 2rem;
+      background: #ffffffdd;
+      border-radius: 1.25rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+      margin-top: 3rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 0.2rem;
+      color: #6a1b9a;
+    }
+    h3 {
+      text-align: center;
+      font-weight: normal;
+      color: #666;
+      margin-top: 0;
+      font-style: italic;
+    }
+
+    .btn-group {
+      text-align: center;
+      margin-top: 1.2rem;
+    }
+
+    .btn {
+      background: linear-gradient(90deg, #7e57c2, #9575cd);
+      color: white;
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 0.5rem;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+    .btn:hover {
+      background: linear-gradient(90deg, #6a1b9a, #7e57c2);
+      transform: scale(1.03);
+    }
+
+    .option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      margin: 1rem 0;
+      background: #f3e5f5;
+      border: 1px solid #d1c4e9;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .option:hover {
+      background: #ede7f6;
+    }
+    .tick {
+      font-weight: bold;
+      color: green;
+      display: none;
+    }
+    .option.selected {
+      background: #d1c4e9;
+      font-weight: bold;
+    }
+    .option.selected .tick {
+      display: inline;
+    }
+
+    #analysis {
+      margin-top: 1rem;
+      font-style: italic;
+      color: #444;
+      text-align: center;
+    }
+
+    #resultBox {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    #quoteBox {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #6a1b9a;
+      white-space: pre-line;
+    }
+    .hidden {
+      display: none;
+    }
+
+    .score-circle {
+      margin: auto;
+      margin-top: 1rem;
+      width: 140px;
+      height: 140px;
+      position: relative;
+    }
+    .score-text {
+      font-size: 1.2rem;
+      fill: #6a1b9a;
+      font-weight: bold;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .lumena-tag {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #7b1fa2;
+    }
+
+    .toggle-theme {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* Dark theme styles */
+    body.dark {
+      background: #1e1e2f;
+      color: #eee;
+    }
+    body.dark .container {
+      background: #2c2c3d;
+      box-shadow: 0 0 10px #000;
+    }
+    body.dark .btn {
+      background: linear-gradient(90deg, #5e35b1, #7e57c2);
+    }
+    body.dark .btn:hover {
+      background: linear-gradient(90deg, #4527a0, #5e35b1);
+    }
+    body.dark .option {
+      background: #3a2f4b;
+      border: 1px solid #5e35b1;
+    }
+    body.dark .option:hover {
+      background: #4a3c5c;
+    }
+    body.dark #analysis,
+    body.dark #quoteBox {
+      color: #cba5f0;
+    }
+    body.dark .score-text {
+      fill: #cba5f0;
+    }
+    body.dark .lumena-tag {
+      color: #ba68c8;
+    }
+  
+    #quoteText {
+      margin-top: 0.5rem;
+      font-style: italic;
+      color: #6a1b9a;
+    }
+</style>
+</head>
+<body>
+  <!-- ✅ Only ONE emoji button -->
+  <div class="toggle-theme" onclick="toggleTheme()" id="themeToggle">🌙</div>
+<div class="container">
+    <h1>Reflectify ✨</h1>
+    <h3>“Know Yourself. Heal Gently. Reflect Deeply.”</h3>
+
+    <div id="ageSelect">
+      <h2>Choose Your Age Group</h2>
+      <div class="btn-group">
+        <button class="btn" onclick="startQuiz('10-20')">10–20: Discovering Yourself</button>
+        <button class="btn" onclick="startQuiz('21-35')">21–35: Becoming Aware</button>
+        <button class="btn" onclick="startQuiz('36-50')">36–50: Seeking Fulfillment</button>
+        <button class="btn" onclick="startQuiz('51+')">51+: Embracing Wisdom</button>
+      </div>
+    </div>
+
+    <div id="quizBox" class="hidden">
+      <h2 id="questionTitle"></h2>
+      <div id="options"></div>
+      <div id="analysis"></div>
+      <div class="btn-group">
+        <button id="undoBtn" class="btn hidden" onclick="undoSelection()">Undo</button>
+        <button id="nextBtn" class="btn hidden" onclick="nextQuestion()">Next</button>
+      </div>
+    </div>
+
+    <div id="resultBox" class="hidden">
+      <h2>Your Reflection Score</h2>
+      <div class="score-circle">
+        <svg width="140" height="140">
+          <circle cx="70" cy="70" r="60" stroke="#ddd" stroke-width="15" fill="none" />
+          <circle id="progressCircle" cx="70" cy="70" r="60" stroke="#7e57c2" stroke-width="15" fill="none"
+            stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round" />
+          <text x="50%" y="50%" text-anchor="middle" dy=".3em" class="score-text" id="scoreText">0%</text>
+        </svg>
+      </div>
+      <div id="quoteBox">
+  <div id="messageText"></div>
+  <blockquote id="quoteText"></blockquote>
+</div>
+      <div class="btn-group">
+        <button class="btn" onclick="location.reload()">🔄 Restart</button>
+        <button class="btn" onclick="window.open('https://evanescentcodes.github.io/LUMENA/', '_blank')">🔗 Back to LUMENA</button>
+      </div>
+    </div>
+
+    <div class="lumena-tag">Reflectify is a part of the <strong>LUMENA</strong> Mental Wellness Project.</div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const isDark = document.body.classList.toggle("dark");
+      const toggle = document.getElementById("themeToggle");
+      toggle.textContent = isDark ? "☀️" : "🌙";
+    }
+
+    const themeToggle = document.getElementById("themeSwitch");
+
+    const quizData = {
+  "10-20": [
+    {
+      q: "How often do you feel safe being your true self in front of others?",
+      a: [
+        ["Rarely", "You might be afraid of judgment — it’s okay to open up slowly."],
+        ["Only with some people", "You're cautious, but building trust."],
+        ["Usually, yes", "You’re learning to express yourself."],
+        ["Always", "You feel free — that’s powerful."]
+      ]
+    },
+    {
+      q: "What do you think when you make a mistake?",
+      a: [
+        ["I’m a failure", "Be kind to yourself. Mistakes are learning tools."],
+        ["I’ll get judged", "Worry is natural — try to reflect instead."],
+        ["It’s okay, I’ll improve", "You are becoming resilient."],
+        ["Mistakes help me grow", "True growth comes from self-compassion."]
+      ]
+    },
+    {
+      q: "Do you often compare your life to others online?",
+      a: [
+        ["All the time", "Comparison steals joy. Your journey is unique."],
+        ["Often", "It’s tough — try focusing inward."],
+        ["Rarely", "You’re growing independent of others’ paths."],
+        ["Never", "You know your value. Keep it up."]
+      ]
+    },
+    {
+      q: "How do you usually deal with stress from school or family?",
+      a: [
+        ["Cry or panic", "Stress is real — find ways to express safely."],
+        ["Bottle it up", "That pressure builds — speak your heart."],
+        ["Talk to someone", "You’re using support — that’s strong."],
+        ["Journal or relax healthily", "You’re building smart coping tools."]
+      ]
+    },
+    {
+      q: "How connected do you feel to your emotions?",
+      a: [
+        ["I avoid them", "Avoidance is protection — healing needs honesty."],
+        ["I feel them but don’t understand", "You’re noticing — keep reflecting."],
+        ["I sometimes recognize them", "Emotional awareness is blooming."],
+        ["I understand and express them", "Emotional intelligence is your strength."]
+      ]
+    },
+    {
+      q: "What’s your relationship with your body/self-image?",
+      a: [
+        ["I hate how I look", "You are more than your appearance."],
+        ["I feel very insecure", "Insecurity is common — try gentle acceptance."],
+        ["I try to accept myself", "That’s powerful inner work."],
+        ["I feel good in my own skin", "That confidence is beautiful."]
+      ]
+    },
+    {
+      q: "When you’re alone, how do you feel?",
+      a: [
+        ["Lonely or anxious", "Loneliness hurts — try connecting or creating."],
+        ["Bored", "Boredom signals a craving for meaning."],
+        ["Calm sometimes", "You're discovering your inner rhythm."],
+        ["Peaceful and content", "Solitude is your strength."]
+      ]
+    },
+    {
+      q: "How do you handle conflict or criticism?",
+      a: [
+        ["Cry, lash out or shut down", "That’s okay — start understanding reactions."],
+        ["Feel bad about myself", "Your self-worth matters — separate the message."],
+        ["Think and talk it through", "You’re emotionally aware."],
+        ["Use it to reflect and improve", "You’re evolving. That’s powerful."]
+      ]
+    },
+    {
+      q: "Do you trust people easily?",
+      a: [
+        ["Not at all", "Guarding your heart is okay — slowly open up."],
+        ["It’s hard for me", "You’ve been hurt — healing takes time."],
+        ["I try to give chances", "That’s brave."],
+        ["I trust wisely", "Trust with boundaries — beautiful."]
+      ]
+    },
+    {
+      q: "How often do you question your worth?",
+      a: [
+        ["Daily", "You are worthy — no proof needed."],
+        ["Often", "Your worth is not defined by others."],
+        ["Sometimes", "You're learning to see yourself clearly."],
+        ["Rarely or never", "That’s strong self-worth."]
+      ]
+    }
+  ],
+
+  "21-35": [
+    {
+      q: "How aligned is your life with your values?",
+      a: [
+        ["Not at all", "You may feel lost — reconnect with your core."],
+        ["Rarely", "Misalignment causes tension. Start small changes."],
+        ["Somewhat", "You’re walking your truth, step by step."],
+        ["Very aligned", "That alignment empowers joy."]
+      ]
+    },
+    {
+      q: "How do you treat yourself when things go wrong?",
+      a: [
+        ["Blame harshly", "Be gentle — you’re still growing."],
+        ["Doubt myself", "Self-trust needs nurturing."],
+        ["Try to move on", "You’re resilient."],
+        ["Reflect and support myself", "Beautiful inner healing."]
+      ]
+    },
+    {
+      q: "How clear are your long-term goals?",
+      a: [
+        ["No clue", "Start with small intentions."],
+        ["Always changing", "You’re exploring — that’s okay."],
+        ["Fair idea", "Your direction is forming."],
+        ["Crystal clear", "Powerful focus — take consistent action."]
+      ]
+    },
+    {
+      q: "How do you respond to emotional overwhelm?",
+      a: [
+        ["Shut down", "Numbing isn’t healing — try to feel."],
+        ["Distract or avoid", "Gentle engagement helps more."],
+        ["Try to stay calm", "You're trying — that counts."],
+        ["Express & reflect", "That’s growth and balance."]
+      ]
+    },
+    {
+      q: "How much time do you give your healing?",
+      a: [
+        ["None", "Healing takes intention."],
+        ["Rarely", "Every small step helps."],
+        ["Sometimes", "You’re on your journey."],
+        ["Often", "Healing is your habit now."]
+      ]
+    },
+    {
+      q: "How secure do you feel in your relationships?",
+      a: [
+        ["Always anxious", "That pain is real — seek safety."],
+        ["Sometimes unsure", "Uncertainty can be faced with clarity."],
+        ["Mostly secure", "You’re forming solid bonds."],
+        ["Completely safe", "Emotional safety is your strength."]
+      ]
+    },
+    {
+      q: "Do you know what brings you peace?",
+      a: [
+        ["Not really", "Discover your inner calm."],
+        ["Only temporary peace", "Try deeper roots."],
+        ["Sometimes", "You’re getting there."],
+        ["Yes, and I protect it", "Peace is sacred."]
+      ]
+    },
+    {
+      q: "How do you respond to inner criticism?",
+      a: [
+        ["Believe it fully", "That voice isn’t your truth."],
+        ["Argue back", "You’re resisting — keep going."],
+        ["Ignore it", "Silence isn’t always strength."],
+        ["Counter with kindness", "You’re rewiring beautifully."]
+      ]
+    },
+    {
+      q: "Do you feel connected to your purpose?",
+      a: [
+        ["Not at all", "You’re still discovering — that’s okay."],
+        ["Unsure", "Curiosity will guide you."],
+        ["Somewhat", "You sense your path."],
+        ["Deeply connected", "Purpose fuels your soul."]
+      ]
+    },
+    {
+      q: "When did you last do something just for joy?",
+      a: [
+        ["Can’t remember", "Joy needs a place in your life."],
+        ["Months ago", "Joy must return."],
+        ["Recently", "You’re balancing joy."],
+        ["Today", "Joy is your light."]
+      ]
+    }
+  ],
+
+  "36-50": [
+    {
+      q: "How satisfied are you with your life decisions?",
+      a: [
+        ["Not at all", "Regret lingers — healing is possible."],
+        ["A little", "You’ve grown from it."],
+        ["Mostly", "You’ve accepted the journey."],
+        ["Very", "Clarity and pride live here."]
+      ]
+    },
+    {
+      q: "Do you feel you’re living your truth or others’ expectations?",
+      a: [
+        ["Mostly theirs", "It’s time to reclaim yourself."],
+        ["A mix", "You're finding balance."],
+        ["Mostly mine", "Your choices reflect your values."],
+        ["Completely mine", "You live your truth."]
+      ]
+    },
+    {
+      q: "How well do you balance your needs with others’?",
+      a: [
+        ["I neglect mine", "Your needs matter too."],
+        ["I struggle", "Start building boundaries."],
+        ["Fairly well", "You're improving."],
+        ["Very well", "You live with healthy harmony."]
+      ]
+    },
+    {
+      q: "How often do you reflect on life’s deeper meaning?",
+      a: [
+        ["Never", "You might be stuck in routine."],
+        ["Rarely", "Life is calling for reflection."],
+        ["Sometimes", "You're awakening."],
+        ["Often", "You seek purpose beyond labels."]
+      ]
+    },
+    {
+      q: "How do you feel about your younger self?",
+      a: [
+        ["Shame", "Be gentle — you did your best."],
+        ["Mixed feelings", "Your journey shaped you."],
+        ["Gratitude", "You honour your growth."],
+        ["Pride", "You’ve healed old wounds."]
+      ]
+    },
+    {
+      q: "Are your current relationships fulfilling?",
+      a: [
+        ["Not at all", "Your needs matter."],
+        ["Somewhat", "You seek more depth."],
+        ["Mostly", "You're building stronger ties."],
+        ["Fully", "You're emotionally nourished."]
+      ]
+    },
+    {
+      q: "Do you feel emotionally resilient?",
+      a: [
+        ["Not really", "Storms are hard — but you bend, not break."],
+        ["Sometimes", "You wobble, but continue."],
+        ["Usually", "You're steady in growth."],
+        ["Yes", "You are anchored."]
+      ]
+    },
+    {
+      q: "How much have you accepted your past?",
+      a: [
+        ["Barely", "Acceptance heals."],
+        ["A little", "You’re trying — that’s brave."],
+        ["Mostly", "You’ve done deep work."],
+        ["Completely", "You live unburdened."]
+      ]
+    },
+    {
+      q: "Are you at ease with solitude?",
+      a: [
+        ["Not at all", "Silence feels heavy now."],
+        ["Sometimes", "You're learning."],
+        ["Mostly", "You're okay being with yourself."],
+        ["Always", "You’ve found inner peace."]
+      ]
+    },
+    {
+      q: "Do you feel proud of who you are today?",
+      a: [
+        ["No", "Your story is still unfolding."],
+        ["Sometimes", "You’re beginning to see your worth."],
+        ["Mostly", "You appreciate your path."],
+        ["Yes", "You embody your growth."]
+      ]
+    }
+  ],
+
+  "51+": [
+    {
+      q: "How at peace are you with your life path?",
+      a: [
+        ["Not at all", "Peace is still possible."],
+        ["Somewhat", "You’ve carried much — honor that."],
+        ["Mostly", "You’ve softened into acceptance."],
+        ["Fully", "That’s wisdom at work."]
+      ]
+    },
+    {
+      q: "How often do you share your wisdom?",
+      a: [
+        ["Rarely", "Your story matters."],
+        ["Sometimes", "Your voice brings light."],
+        ["Often", "You uplift others."],
+        ["Always", "You inspire generations."]
+      ]
+    },
+    {
+      q: "How do you feel about aging?",
+      a: [
+        ["Fearful", "Aging is growth."],
+        ["Uncertain", "New seasons hold new gifts."],
+        ["Balanced", "You’re embracing this phase."],
+        ["Grateful", "Grace and aging walk together."]
+      ]
+    },
+    {
+      q: "Do you feel a strong sense of purpose now?",
+      a: [
+        ["No", "Purpose evolves — it’s never too late."],
+        ["Not sure", "Seek what calls to you."],
+        ["Somewhat", "Your path is unfolding."],
+        ["Yes", "You live from your truth."]
+      ]
+    },
+    {
+      q: "How often do you revisit joyful memories?",
+      a: [
+        ["Never", "Joy softens even the hardest days."],
+        ["Rarely", "Joy is allowed."],
+        ["Sometimes", "You remember the light."],
+        ["Often", "Your life is full of beauty."]
+      ]
+    },
+    {
+      q: "Can you let go of regrets?",
+      a: [
+        ["No", "Forgiveness frees you."],
+        ["Trying", "You are healing."],
+        ["Mostly", "You’ve done the work."],
+        ["Yes", "You are light-hearted."]
+      ]
+    },
+    {
+      q: "How strong is your connection to your spirit or inner self?",
+      a: [
+        ["Disconnected", "Silence is a good beginning."],
+        ["Searching", "You’re on a sacred path."],
+        ["Growing", "Trust is blooming."],
+        ["Deeply connected", "Your soul shines brightly."]
+      ]
+    },
+    {
+      q: "What do you feel about your impact on others?",
+      a: [
+        ["Minimal", "Every kindness matters."],
+        ["Unclear", "Your impact is unseen but real."],
+        ["Meaningful", "You’ve shaped hearts."],
+        ["Lasting", "You’ve become a legacy."]
+      ]
+    },
+    {
+      q: "Do you feel emotionally lighter than before?",
+      a: [
+        ["Not really", "You still carry stories."],
+        ["Sometimes", "The clouds are thinning."],
+        ["Mostly", "You are healing through time."],
+        ["Yes", "You are free inside."]
+      ]
+    },
+    {
+      q: "Do you feel whole and complete?",
+      a: [
+        ["Not yet", "You are enough already."],
+        ["Trying to", "Your wholeness isn’t perfection."],
+        ["Mostly", "You are honoring your journey."],
+        ["Yes", "You are beautifully whole."]
+      ]
+    }
+  ]
+};
+
+    let currentAgeGroup = '', currentQuestion = 0, totalScore = 0, lastScore = 0;
+
+    function startQuiz(ageGroup) {
+      currentAgeGroup = ageGroup;
+      currentQuestion = 0;
+      totalScore = 0;
+      document.getElementById('ageSelect').classList.add('hidden');
+      document.getElementById('quizBox').classList.remove('hidden');
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const qData = quizData[currentAgeGroup][currentQuestion];
+      document.getElementById('questionTitle').textContent = `Q${currentQuestion + 1}. ${qData.q}`;
+      const optionsBox = document.getElementById('options');
+      optionsBox.innerHTML = '';
+      document.getElementById('analysis').textContent = '';
+      document.getElementById('nextBtn').classList.add('hidden');
+      document.getElementById('undoBtn').classList.add('hidden');
+
+      qData.a.forEach((opt, i) => {
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.innerHTML = `<span>${opt[0]}</span><span class='tick'>✔️</span>`;
+        div.onclick = () => selectOption(i, opt[1], div);
+        optionsBox.appendChild(div);
+      });
+    }
+
+    function selectOption(scoreIndex, analysis, el) {
+      lastScore = scoreIndex + 1;
+      totalScore += lastScore;
+
+      document.querySelectorAll('.option').forEach(opt => {
+        opt.classList.remove('selected');
+        opt.style.pointerEvents = 'none';
+      });
+      el.classList.add('selected');
+      document.getElementById('analysis').textContent = analysis;
+      document.getElementById('nextBtn').classList.remove('hidden');
+      document.getElementById('undoBtn').classList.remove('hidden');
+    }
+
+    function undoSelection() {
+      totalScore -= lastScore;
+      lastScore = 0;
+      document.getElementById('analysis').textContent = '';
+      document.getElementById('nextBtn').classList.add('hidden');
+      document.getElementById('undoBtn').classList.add('hidden');
+      document.querySelectorAll('.option').forEach(opt => {
+        opt.classList.remove('selected');
+        opt.style.pointerEvents = 'auto';
+      });
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < quizData[currentAgeGroup].length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      document.getElementById('quizBox').classList.add('hidden');
+      document.getElementById('resultBox').classList.remove('hidden');
+
+      const scoreText = document.getElementById('scoreText');
+      const quoteBox = document.getElementById('quoteBox');
+      const maxScore = quizData[currentAgeGroup].length * 4;
+      const percent = (totalScore / maxScore) * 100;
+      let message = "", quote = "";
+
+      if (percent <= 40) {
+        message = "You may be mentally overwhelmed. Please seek help or talk to someone.";
+        quote = "“Even the darkest storms pass.”";
+      } else if (percent <= 65) {
+        message = "You’re in a state of emotional transition. Stay open and gentle with yourself.";
+        quote = "“You’re growing even if you don’t see it.”";
+      } else if (percent <= 85) {
+        message = "You're doing quite well. Keep nurturing your emotional awareness.";
+        quote = "“Healing is not linear, but it’s real.”";
+      } else {
+        message = "You’re emotionally strong and highly aware. Use that strength to guide others too.";
+        quote = "“Your mind is your sanctuary. Protect it.”";
+      }
+
+      scoreText.textContent = `${Math.round(percent)}%`;
+      document.getElementById('messageText').textContent = message;
+      document.getElementById('quoteText').textContent = quote;
+
+      animateCircle(percent);
+    }
+
+    function animateCircle(percent) {
+      const circle = document.getElementById('progressCircle');
+      const radius = 60;
+      const circumference = 2 * Math.PI * radius;
+      const offset = circumference - (percent / 100) * circumference;
+
+      circle.style.strokeDashoffset = circumference;
+      setTimeout(() => {
+        circle.style.transition = 'stroke-dashoffset 1.5s ease';
+        circle.style.strokeDashoffset = offset;
+      }, 100);
+    }
+  </script>
+</body>
+</html>
